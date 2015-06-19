@@ -64,4 +64,16 @@ class ListTest {
 		val list = List('a, 'a, 'a, 'a, 'b, 'c, 'c, 'a, 'a, 'd, 'e, 'e, 'e, 'e)
 		assertEquals(P10.encode(list), List((4,'a), (1,'b), (2,'c), (2,'a), (1,'d), (4,'e)))
 	}
+
+	@Test
+	def testP11: Unit = {
+		val list = List('a, 'a, 'a, 'a, 'b, 'c, 'c, 'a, 'a, 'd, 'e, 'e, 'e, 'e)
+		assertEquals(P11.encodeModified(list), List((4,'a), 'b, (2,'c), (2,'a), 'd, (4,'e)))
+	}
+
+	@Test
+	def testP12: Unit = {
+		val list = List((4, 'a), (1, 'b), (2, 'c), (2, 'a), (1, 'd), (4, 'e))
+		assertEquals(P12.decode(list), List('a, 'a, 'a, 'a, 'b, 'c, 'c, 'a, 'a, 'd, 'e, 'e, 'e, 'e))
+	}
 }
