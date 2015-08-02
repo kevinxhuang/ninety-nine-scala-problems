@@ -81,8 +81,8 @@ object Lists {
 		}
 	}
 
-	//P09 (**) Pack consecutive duplicates of list elements into sublists.
-	//	If a list contains repeated elements they should be placed in separate sublists.
+	//P09 (**) Pack consecutive duplicates of list elements into sub
+	//	If a list contains repeated elements they should be placed in separate sub
 	//	Example:
 	//
 	//	scala> pack(List('a, 'a, 'a, 'a, 'b, 'c, 'c, 'a, 'a, 'd, 'e, 'e, 'e, 'e))
@@ -180,4 +180,160 @@ object Lists {
 		list.splitAt(n)
 	}
 
+	//	P18 (**) Extract a slice from a list.
+	//		Given two indices, I and K, the slice is the list containing the elements from and including the Ith element up to but not including the Kth element of the original list. Start counting the elements with 0.
+	//	Example:
+	//
+	//		scala> slice(3, 7, List('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h, 'i, 'j, 'k))
+	//	res0: List[Symbol] = List('d, 'e, 'f, 'g)
+	def slice[T](start: Int, end: Int, list: List[T]): List[T] = {
+		list.splitAt(start)._2.take(end - start)
+	}
+
+	//	P19 (**) Rotate a list N places to the left.
+	//		Examples:
+	//		scala> rotate(3, List('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h, 'i, 'j, 'k))
+	//	res0: List[Symbol] = List('d, 'e, 'f, 'g, 'h, 'i, 'j, 'k, 'a, 'b, 'c)
+	//
+	//	scala> rotate(-2, List('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h, 'i, 'j, 'k))
+	//	res1: List[Symbol] = List('j, 'k, 'a, 'b, 'c, 'd, 'e, 'f, 'g, 'h, 'i)
+	def rotate[T](n: Int, list: List[T]): List[T] = {
+		if (n >= 0) {
+			list.splitAt(n)._2 ::: list.splitAt(n)._1
+		} else {
+			val offset = -n
+			list.splitAt(list.length - offset)._2 ::: list.splitAt(list.length - offset)._1
+		}
+	}
+
+	//	P20 (*) Remove the Kth element from a list.
+	//	the list and the removed element in a Tuple. Elements are numbered from 0.
+	//	Example:
+	//
+	//		scala> removeAt(1, List('a, 'b, 'c, 'd))
+	//	res0: (List[Symbol], Symbol) = (List('a, 'c, 'd),'b)
+	def removeAt[T](n: Int, list: List[T]): (List[T], T) = {
+		if (n < 0 || n >= list.length) {
+			throw new IllegalArgumentException
+		} else {
+			list.splitAt(n) match {
+				case(pre, e::post) => (pre:::post, e)
+			}
+		}
+	}
+
+	//	P21 (*) Insert an element at a given position into a list.
+	//		Example:
+	//		scala> insertAt('new, 1, List('a, 'b, 'c, 'd))
+	//	res0: List[Symbol] = List('a, 'new, 'b, 'c, 'd)
+	def insertAt[T](elem: T, n: Int, list: List[T]): List[T] = {
+		list.splitAt(n)._1 ::: elem :: list.splitAt(n)._2
+	}
+
+	//	P22 (*) Create a list containing all integers within a given range.
+	//		Example:
+	//		scala> range(4, 9)
+	//	res0: List[Int] = List(4, 5, 6, 7, 8, 9)
+	def range(start: Int, end: Int): List[Int] = {
+		(4 to 9).toList
+	}
+
+	//	P23 (**) Extract a given number of randomly selected elements from a list.
+	//	Example:
+	//		scala> randomSelect(3, List('a, 'b, 'c, 'd, 'f, 'g, 'h))
+	//	res0: List[Symbol] = List('e, 'd, 'a)
+	def randomSelect[T](n: Int, list: List[T]): List[T] = {
+		if (n <= 0) {
+			Nil
+		} else {
+			val (rest, e) = removeAt(util.Random.nextInt(list.length), list)
+			e :: randomSelect(n - 1, rest)
+		}
+	}
+
+	//	P24 (*) Lotto: Draw N different random numbers from the set 1..M.
+	//		Example:
+	//		scala> lotto(6, 49)
+	//	res0: List[Int] = List(23, 1, 17, 33, 21, 37)
+	def lotto(n: Int, m: Int): List[Int] = {
+		randomSelect(n, range(1, m))
+	}
+
+	//	P25 (*) Generate a random permutation of the elements of a list.
+	//		Hint: Use the solution of problem P23.
+	//	Example:
+	//
+	//		scala> randomPermute(List('a, 'b, 'c, 'd, 'e, 'f))
+	//	res0: List[Symbol] = List('b, 'a, 'd, 'c, 'e, 'f)
+	def randomPermute[T](list : List[T]): List[T] = {
+		util.Random.shuffle(list)
+	}
+
+	//	P26 (**) Generate the combinations of K distinct objects chosen from the N elements of a list.
+	//	In how many ways can a committee of 3 be chosen from a group of 12 people? We all know that there are C(12,3) = 220 possibilities (C(N,K) denotes the well-known binomial coefficient). For pure mathematicians, this result may be great. But we want to really generate all the possibilities.
+	//		Example:
+	//
+	//		scala> combinations(3, List('a, 'b, 'c, 'd, 'e, 'f))
+	//	res0: List[List[Symbol]] = List(List('a, 'b, 'c), List('a, 'b, 'd), List('a, 'b, 'e), ...
+	def combinations[T](n: Int, list: List[T]): List[List[T]] = {
+		list match {
+			case Nil => Nil
+			case head:: rest =>
+				if (n < 0 || n > list.length) {
+					Nil
+				} else if (n == 1) {
+					list.map(List(_))
+				} else {
+					combinations(n - 1, rest).map(head :: _) ::: combinations(n, rest)
+				}
+		}
+	}
+
+	//	P27 (**) Group the elements of a set into disjoint subsets.
+	//	a) In how many ways can a group of 9 people work in 3 disjoint subgroups of 2, 3 and 4 persons? Write a function that generates all the possibilities.
+	//		Example:
+	//
+	//		scala> group3(List("Aldo", "Beat", "Carla", "David", "Evi", "Flip", "Gary", "Hugo", "Ida"))
+	//	res0: List[List[List[String]]] = List(List(List(Aldo, Beat), List(Carla, David, Evi), List(Flip, Gary, Hugo, Ida)), ...
+	//	b) Generalize the above predicate in a way that we can specify a list of group sizes and the predicate will a list of groups.
+	//
+	//	Example:
+	//
+	//		scala> group(List(2, 2, 5), List("Aldo", "Beat", "Carla", "David", "Evi", "Flip", "Gary", "Hugo", "Ida"))
+	//	res0: List[List[List[String]]] = List(List(List(Aldo, Beat), List(Carla, David), List(Evi, Flip, Gary, Hugo, Ida)), ...
+	//	Note that we do not want permutations of the group members; i.e. ((Aldo, Beat), ...) is the same solution as ((Beat, Aldo), ...). However, we make a difference between ((Aldo, Beat), (Carla, David), ...) and ((Carla, David), (Aldo, Beat), ...).
+	//
+	//	You may find more about this combinatorial problem in a good book on discrete mathematics under the term "multinomial coefficients".
+	def group[T](counts: List[Int], list: List[T]): List[List[List[T]]] = {
+		counts match {
+			case Nil => List(Nil)
+			case n :: restCounts => combinations(n, list).flatMap(c => group(restCounts, list.filter(e => !c.contains(e))).map(c :: _))
+		}
+	}
+
+	def group3[T](list: List[T]): List[List[List[T]]] = {
+		group(List(2, 3, 4), list)
+	}
+
+	//	P28 (**) Sorting a list of lists according to length of sublists.
+	//		a) We suppose that a list contains elements that are lists themselves. The objective is to sort the elements of the list according to their length. E.g. short lists first, longer lists later, or vice versa.
+	//		Example:
+	//
+	//		scala> lsort(List(List('a, 'b, 'c), List('d, 'e), List('f, 'g, 'h), List('d, 'e), List('i, 'j, 'k, 'l), List('m, 'n), List('o)))
+	//	res0: List[List[Symbol]] = List(List('o), List('d, 'e), List('d, 'e), List('m, 'n), List('a, 'b, 'c), List('f, 'g, 'h), List('i, 'j, 'k, 'l))
+	//	b) Again, we suppose that a list contains elements that are lists themselves. But this time the objective is to sort the elements according to their length frequency; i.e. in the default, sorting is done ascendingly, lists with rare lengths are placed, others with a more frequent length come later.
+	//
+	//	Example:
+	//
+	//		scala> lsortFreq(List(List('a, 'b, 'c), List('d, 'e), List('f, 'g, 'h), List('d, 'e), List('i, 'j, 'k, 'l), List('m, 'n), List('o)))
+	//	res1: List[List[Symbol]] = List(List('i, 'j, 'k, 'l), List('o), List('a, 'b, 'c), List('f, 'g, 'h), List('d, 'e), List('d, 'e), List('m, 'n))
+	//	Note that in the above example, the first two lists in the result have length 4 and 1 and both lengths appear just once. The third and fourth lists have length 3 and there are two list of this length. Finally, the last three lists have length 2. This is the most frequent length.
+	def lsort[T](list: List[List[T]]): List[List[T]] = {
+		list.sortBy(e => e.length)
+	}
+
+	def lsortFreq[T](list: List[List[T]]): List[List[T]] = {
+		val freqs = list.groupBy(e => e.length).map(e => e._1 -> e._2.length)
+		list.sortBy(e => (freqs.get(e.length), -e.length))
+	}
 }
