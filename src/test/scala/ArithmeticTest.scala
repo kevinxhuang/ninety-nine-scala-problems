@@ -25,7 +25,8 @@ class ArithmeticTest {
   }
 
   def testP35(): Unit = {
-
+    assertEquals(Arithmetic.primeFactors(2), List(2))
+    assertEquals(Arithmetic.primeFactors(315), List(3, 3, 5, 7))
   }
 
   def testP36(): Unit = {

@@ -42,4 +42,31 @@ object Arithmetic {
   def totient(n: Int): Int = {
     return (1 to n).count(x => isCoprimeTo(x, n))
   }
+
+  //  P35 (**) Determine the prime factors of a given positive integer.
+  //  Construct a flat list containing the prime factors in ascending order.
+  //    scala> 315.primeFactors
+  //  res0: List[Int] = List(3, 3, 5, 7)
+  def primeFactors(n: Int): List[Int] = {
+    def getFactors(n: Int, factors: Stream[Int]): List[Int] = {
+      if (n == 1 || factors.isEmpty) {
+        return List()
+      }
+
+      if (n % factors.head == 0) {
+        return factors.head :: getFactors(n / factors.head, factors)
+      } else {
+        return getFactors(n, factors.tail)
+      }
+    }
+
+    if (n < 2) {
+      throw new IllegalArgumentException("Invalid input.")
+    }
+    if (isPrime(n)) {
+      return List(n)
+    } else {
+      return getFactors(n, (2 to n).filter(isPrime).toStream)
+    }
+  }
 }
